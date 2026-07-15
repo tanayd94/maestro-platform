@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+
+networks:
+  maestro-network:
+    driver: bridge
+
+volumes:
+
+postgres:
+  image: pgvector/pgvector:pg16
+  container_name: maestro-db
+
+  restart: unless-stopped
+
+  env_file:
+    - .env
+
+  networks:
+    - maestro-network
+
+  volumes:
+    - postgres_data:/var/lib/postgresql/data
+
+  ports:
+    - "5432:5432"
+
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+
+redis:
+  image: redis/redis-stack-server:latest
+
+  container_name: maestro-redis
+
+  restart: unless-stopped
+
+  networks:
+    - maestro-network
+
+  volumes:
+    - redis_data:/data
+
+  ports:
+    - "6379:6379"
+
+  healthcheck:
+    test: ["CMD", "redis-cli", "ping"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
