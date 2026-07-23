@@ -1,0 +1,8 @@
+Django
+djangorestframework
+psycopg
+celery
+redis
+pgvector
+langchain
+openai

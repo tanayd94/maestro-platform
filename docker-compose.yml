@@ -1,6 +1,38 @@
-version: "3.9"
+# version: "3.9"
 
 services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    container_name: maestro-backend
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./backend:/app
+      - media_data:/app/media
+      - static_data:/app/static
+
+    ports:
+      - "8000:8000"
+    command: >
+      python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+    networks:
+      - maestro-network
+
+    # command: sleep infinity
+  
   postgres:
     image: pgvector/pgvector:pg16
     container_name: maestro-db
@@ -20,17 +52,16 @@ services:
       - "5432:5432"
 
     healthcheck:
-    test: ["CMD-SHELL","pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]   
-    interval: 10s
-    timeout: 5s
-    retries: 5
-    start_period: 10s
+      test: ["CMD-SHELL","pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]   
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
     logging:
       options:
         max-size: "10m"
         max-file: "3"
-
 
   redis:
     image: redis/redis-stack-server:latest
@@ -53,7 +84,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
 
 networks:
   maestro-network:
