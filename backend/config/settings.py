@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "apps.accounts",
     "apps.teachers",
+    "apps.core"
 ]
 AUTH_USER_MODEL = "accounts.User"
 MIDDLEWARE = [
